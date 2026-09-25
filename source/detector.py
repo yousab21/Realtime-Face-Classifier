@@ -8,7 +8,7 @@ class FaceDetector:
 
         self.mtcnn = MTCNN(keep_all=True, device=self.device)
 
-    def detect(self, frame):
+    def detect(self, frame, confidence_threshold=0.85):
         if frame is None:
             raise ValueError("Cannot detect faces in a None frame")
 
@@ -19,9 +19,10 @@ class FaceDetector:
 
         height, width = frame.shape[:2]
 
+        # mtcnn can return box coordinartes outside of the frame
+        # if this happens we crop the box to fit the frame
         valid_boxes = []
         valid_probabilities = []
-
         for box, probability in zip(boxes, probabilities):
             x1, y1, x2, y2 = map(int, box)
 
@@ -31,6 +32,10 @@ class FaceDetector:
             y2 = max(0, min(y2, height - 1))
 
             if x1 >= x2 or y1 >= y2:
+                continue
+
+            # skip boxes with low confidence
+            if probability < confidence_threshold:
                 continue
 
             valid_boxes.append((x1, y1, x2, y2))
