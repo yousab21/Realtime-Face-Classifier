@@ -41,3 +41,23 @@ class Video_handeler:
             raise ValueError(f"Invalid box coordinates: ({x1},{y1}) to ({x2},{y2})")
 
         cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+
+    def draw_label(self, frame, x1, y2, label, confidence):
+        if frame is None:
+            raise ValueError("Cannot draw on a None frame")
+
+        text = f"{label} ({confidence:.2f})"
+
+        # Positioned just below the bottom-left corner of the box (y2),
+        # matching where draw_box's rectangle already ends
+        text_position = (x1, y2 + 20)
+
+        cv2.putText(
+            frame,
+            text,
+            text_position,
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.6,
+            (0, 255, 0),
+            2,
+        )
